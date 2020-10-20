@@ -1467,7 +1467,7 @@ public:
     //m_s3_select->get_scratch_area()->set_column_pos(column_name.c_str(),column_id); //TODO should load once per query
   }
 
-  void set(s3select *s3_query) //TODO reuse code on base
+  void set(s3select* s3_query) //TODO reuse code on base
   {
     m_s3_select = s3_query;
     base_s3object::set(m_s3_select->get_scratch_area());
@@ -1493,17 +1493,17 @@ public:
     for (auto p : m_s3_select->getAction()->predicate_columns)
     {
       //per each (variable*) get its positions and push it into columns_ids
-      if (dynamic_cast<variable *>(p) && p->is_column())
+      if (dynamic_cast<variable* >(p) && p->is_column())
       {
-        if (dynamic_cast<variable *>(p)->m_var_type == s3selectEngine::variable::var_t::VAR)
+        if (dynamic_cast<variable* >(p)->m_var_type == s3selectEngine::variable::var_t::VAR)
         {
-          std::string column_name = dynamic_cast<variable *>(p)->get_name();
+          std::string column_name = dynamic_cast<variable* >(p)->get_name();
           uint16_t column_id = object_reader.get_column_id(column_name);
           columns_ids.insert(column_id);
         }
         else
         {
-          columns_ids.insert(dynamic_cast<variable *>(p)->get_column_pos());
+          columns_ids.insert(dynamic_cast<variable* >(p)->get_column_pos());
         }
       } //else exception?
     }
@@ -1514,17 +1514,17 @@ public:
     for (auto p : m_s3_select->getAction()->projections_columns)
     { //TODO reuse code bellow
       //per each p (variable*) get its positions and push it into columns_ids
-      if (dynamic_cast<variable *>(p) && p->is_column())
+      if (dynamic_cast<variable* >(p) && p->is_column())
       {
-        if (dynamic_cast<variable *>(p)->m_var_type == s3selectEngine::variable::var_t::VAR)
+        if (dynamic_cast<variable* >(p)->m_var_type == s3selectEngine::variable::var_t::VAR)
         {
-          std::string column_name = dynamic_cast<variable *>(p)->get_name();
+          std::string column_name = dynamic_cast<variable* >(p)->get_name();
           uint16_t column_id = object_reader.get_column_id(column_name);
           columns_ids.insert(column_id);
         }
         else
         {
-          columns_ids.insert(dynamic_cast<variable *>(p)->get_column_pos());
+          columns_ids.insert(dynamic_cast<variable* >(p)->get_column_pos());
         } //else exception?
       }
     }

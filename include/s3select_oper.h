@@ -1055,6 +1055,7 @@ public:
   base_statement* get_aggregate();
   bool is_nested_aggregate(base_statement* e);
   bool is_binop_aggregate_and_column(base_statement* skip);
+  void extract_columns(parquet_file_parser::column_pos_t &cols);
 
   virtual void set_last_call()
   {
@@ -1111,6 +1112,16 @@ public:
   void dtor()
   {
     this->~base_statement();
+  }
+
+  scratch_area* getScratchArea()
+  {
+    return m_scratch;
+  }
+
+  projection_alias* getAlias()
+  {
+    return m_aliases;
   }
 
 };

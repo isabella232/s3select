@@ -1426,9 +1426,12 @@ public:
 
     load_meta_data_into_scratch_area();
 
-    getWhereClauseColumns(m_where_clause_columns);
+    for(auto x : m_s3_select->get_projections_list())
+    {
+        x->extract_columns(m_projections_columns);
+    }
 
-    getProjectionsColumns(m_projections_columns);
+    m_s3_select->get_filter()->extract_columns(m_where_clause_columns);
   }
 
   int run_s3select_on_object(std::string &result)
@@ -1493,52 +1496,6 @@ public:
 
     m_aggr_flow = m_s3_select->is_aggregate_query();
   }
-
-  void extractColumns(parquet_file_parser::column_pos_t &columns_ids,std::vector<base_statement*> column_statements)
-  {
-    for (auto p : column_statements)
-    {
-      //per each (variable*) get its positions and push it into columns_ids
-      if (dynamic_cast<variable* >(p) && p->is_column())
-      {
-        if (dynamic_cast<variable* >(p)->m_var_type == s3selectEngine::variable::var_t::VAR)
-        {
-          std::string column_name = dynamic_cast<variable* >(p)->get_name();
-          int column_id; 
-          if( (column_id=object_reader.get_column_id(column_name)) == (uint16_t)-1)
-          {
-              std::string error_msg = "column " + column_name +" is not exists";
-              throw base_s3select_exception(error_msg, base_s3select_exception::s3select_exp_en_t::FATAL);
-          }
-
-          columns_ids.insert(column_id);
-        }
-        else
-        {
-          if(dynamic_cast<variable* >(p)->get_column_pos() > (object_reader.get_num_of_columns()-1))
-          {
-              std::stringstream error_msg;
-              error_msg << "column position greater than number of columns (" << 
-              object_reader.get_num_of_columns() << ")";
-
-              throw base_s3select_exception( error_msg.str(), base_s3select_exception::s3select_exp_en_t::FATAL);
-          }
-
-          columns_ids.insert(dynamic_cast<variable* >(p)->get_column_pos());
-        }
-      } 
-    }
-  }
-
-void getWhereClauseColumns(parquet_file_parser::column_pos_t &columns_ids)
-{
-  extractColumns(columns_ids,m_s3_select->getAction()->predicate_columns);
-}
-
-void getProjectionsColumns(parquet_file_parser::column_pos_t &columns_ids)
-{
-  extractColumns(columns_ids, m_s3_select->getAction()->projections_columns);
-}
 
   bool is_end_of_stream()
   {

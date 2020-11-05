@@ -72,11 +72,7 @@ struct actionQ
   s3select_projections  projections;
   uint64_t in_set_count;
 
-  bool projection_or_predicate_state; //true->projection false->predicate(where-clause statement)
-  std::vector<base_statement*> predicate_columns;
-  std::vector<base_statement*> projections_columns; 
-
-  actionQ():in_set_count(0),projection_or_predicate_state(true){}
+  actionQ():in_set_count(0){}
 
 };
 
@@ -517,8 +513,6 @@ void push_from_clause::operator()(s3select* self, const char* a, const char* b) 
   std::string token(a, b);
 
   self->getAction()->from_clause = token;
-
-  self->getAction()->projection_or_predicate_state = false;//parser is now on where-clause
 }
 
 void push_number::operator()(s3select* self, const char* a, const char* b) const
@@ -593,14 +587,6 @@ void push_variable::operator()(s3select* self, const char* a, const char* b) con
   
   self->getAction()->exprQ.push_back(v);
 
-  if(self->getAction()->projection_or_predicate_state==false)
-  {
-    self->getAction()->predicate_columns.push_back(v);
-  }
-  else
-  {
-    self->getAction()->projections_columns.push_back(v);
-  }
 }
 
 void push_addsub::operator()(s3select* self, const char* a, const char* b) const
@@ -848,14 +834,6 @@ void push_column_pos::operator()(s3select* self, const char* a, const char* b) c
 
   self->getAction()->exprQ.push_back(v);
 
-  if(self->getAction()->projection_or_predicate_state==false)
-  {
-    self->getAction()->predicate_columns.push_back(v);
-  }
-  else
-  {
-    self->getAction()->projections_columns.push_back(v);
-  }
 }
 
 void push_projection::operator()(s3select* self, const char* a, const char* b) const
@@ -1428,10 +1406,11 @@ public:
 
     for(auto x : m_s3_select->get_projections_list())
     {
-        x->extract_columns(m_projections_columns);
+        x->extract_columns(m_projections_columns,object_reader.get_num_of_columns());
     }
 
-    m_s3_select->get_filter()->extract_columns(m_where_clause_columns);
+    if(m_s3_select->get_filter())
+        m_s3_select->get_filter()->extract_columns(m_where_clause_columns,object_reader.get_num_of_columns());
   }
 
   int run_s3select_on_object(std::string &result)

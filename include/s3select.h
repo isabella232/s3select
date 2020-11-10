@@ -1519,7 +1519,7 @@ public:
         //TODO if (m_where_clause)
         int status = object_reader.get_column_values_by_positions(m_where_clause_columns, m_predicate_values); //TODO status should indicate error/end-of-stream/success
 
-        m_sa->update(m_predicate_values, m_where_clause_columns); //TODO select _{column-position} ; select {column-name} shoud be sync
+        m_sa->update(m_predicate_values, m_where_clause_columns);
 
         for (auto a : *m_s3_select->get_aliases()->get())
         {

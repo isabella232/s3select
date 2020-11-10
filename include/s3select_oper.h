@@ -1326,7 +1326,7 @@ public:
     }
     else if(m_var_type == var_t::STAR_OPERATION)
     {
-      return star_operation();//TODO parquet star operation
+      return star_operation();
     }
     else if (column_pos == undefined_column_pos)
     {
@@ -1375,7 +1375,6 @@ public:
     }
     else
     {
-      //var_value = (char*)m_scratch->get_column_value(column_pos).data();  //no allocation. returning pointer of allocated space
       m_scratch->get_column_value(column_pos,var_value);
     }
 
